@@ -1,12 +1,11 @@
 # loops-engineering
 
-Reusable engineering loops for AI coding agents.
+Harness is the frame. Loops are the operating rhythm.
 
-Install this into any repo to give agents a clear way to work:
+This installer adds both:
 
-```text
-Goal -> Context -> Plan -> Act -> Verify -> Repair -> Trace
-```
+- base Harness from [`repository-harness`](https://github.com/hoangnb24/repository-harness)
+- `docs/loops/*` for core, web, app, API, data, automation, research, and risk loops
 
 ## Install
 
@@ -32,25 +31,21 @@ curl -fsSL "https://raw.githubusercontent.com/hailongluu/loops-engineering/main/
 & ([scriptblock]::Create((irm "https://raw.githubusercontent.com/hailongluu/loops-engineering/main/scripts/install-loop-engineering.ps1"))) -Directory C:\path\to\project -Merge -Yes
 ```
 
-Preview first:
+Only install loops when Harness is already handled:
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/hailongluu/loops-engineering/main/scripts/install-loop-engineering.sh?$(date +%s)" | bash -s -- --merge --dry-run
+curl -fsSL "https://raw.githubusercontent.com/hailongluu/loops-engineering/main/scripts/install-loop-engineering.sh?$(date +%s)" | bash -s -- --merge --yes --loops-only
 ```
 
 ```powershell
-& ([scriptblock]::Create((irm "https://raw.githubusercontent.com/hailongluu/loops-engineering/main/scripts/install-loop-engineering.ps1"))) -Merge -DryRun
+& ([scriptblock]::Create((irm "https://raw.githubusercontent.com/hailongluu/loops-engineering/main/scripts/install-loop-engineering.ps1"))) -Merge -Yes -LoopsOnly
 ```
 
 ## Verify
 
-macOS/Linux:
-
 ```bash
 bash scripts/verify-loop-docs.sh
 ```
-
-Windows:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\verify-loop-docs.ps1
@@ -62,7 +57,7 @@ Expected:
 VERIFY_OK loop docs present and wired
 ```
 
-## Installed Files
+## What Gets Added
 
 ```text
 docs/loops/
@@ -76,21 +71,9 @@ docs/loops/
   research-doc-loop.md
   security-risk-loop.md
 
-scripts/
-  verify-loop-docs.sh
-  verify-loop-docs.ps1
-
 AGENTS.md
   <!-- LOOP-ENGINEERING:BEGIN --> block
 ```
 
-## Use
-
-Ask the agent to read:
-
-- `docs/loops/README.md`
-- `docs/loops/core-loop.md`
-- the relevant domain loop under `docs/loops/`
-
-Then give it the task. The loop tells the agent what to clarify, what to build,
-how to verify, when to retry, and when to stop.
+Ask the agent to read `docs/loops/README.md`, `docs/loops/core-loop.md`, and the
+relevant domain loop before it starts work.
