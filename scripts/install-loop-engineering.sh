@@ -9,13 +9,14 @@ TARGET_DIR="."
 MODE="stop"
 YES=0
 DRY_RUN=0
+LOOPS_ONLY=0
 
 usage() {
   cat <<'EOF'
-Install Loop Engineering Pack into any repo.
+Install Harness plus the Loop Engineering Pack into any repo.
 
 Usage:
-  install-loop-engineering.sh [--directory PATH] [--merge|--override] [--yes] [--dry-run]
+  install-loop-engineering.sh [--directory PATH] [--merge|--override] [--yes] [--dry-run] [--loops-only]
 
 Options:
   --directory PATH  Install into PATH instead of current directory.
@@ -23,6 +24,7 @@ Options:
   --override        Replace loop pack files and marked AGENTS/docs blocks.
   --yes             Non-interactive yes.
   --dry-run         Print planned changes without writing.
+  --loops-only      Install only docs/loops and AGENTS.md loop instructions.
   --help            Show this help.
 
 Environment:
@@ -52,6 +54,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --loops-only)
+      LOOPS_ONLY=1
       shift
       ;;
     --help|-h)
@@ -89,6 +95,32 @@ if ! command -v curl >/dev/null 2>&1; then
   echo "curl is required." >&2
   exit 1
 fi
+
+install_harness() {
+  if [ "$LOOPS_ONLY" -eq 1 ]; then
+    echo "Skipping Harness install (--loops-only)."
+    return
+  fi
+
+  local harness_args=("--directory" "$TARGET_DIR")
+  case "$MODE" in
+    merge) harness_args+=("--merge") ;;
+    override) harness_args+=("--override") ;;
+  esac
+  if [ "$YES" -eq 1 ]; then
+    harness_args+=("--yes")
+  fi
+  if [ "$DRY_RUN" -eq 1 ]; then
+    harness_args+=("--dry-run")
+  fi
+
+  echo "Installing base Harness"
+  if [ "$DRY_RUN" -eq 1 ]; then
+    echo "[dry-run] curl repository-harness installer | bash -s -- ${harness_args[*]}"
+  else
+    curl -fsSL "https://raw.githubusercontent.com/hoangnb24/repository-harness/main/scripts/install-harness.sh?$(date +%s)" | bash -s -- "${harness_args[@]}"
+  fi
+}
 
 loop_files=(
   "docs/loops/README.md"
@@ -196,6 +228,8 @@ patch_marked_block() {
   mv "$tmp" "$path"
 }
 
+install_harness
+
 for rel in "${loop_files[@]}"; do
   download_file "$rel"
 done
@@ -206,6 +240,10 @@ if [ "$DRY_RUN" -eq 0 ]; then
   chmod +x "$TARGET_DIR/scripts/verify-loop-docs.sh" || true
 fi
 
-echo "Loop Engineering Pack installed in $TARGET_DIR"
+if [ "$LOOPS_ONLY" -eq 1 ]; then
+  echo "Loop Engineering Pack installed in $TARGET_DIR"
+else
+  echo "Harness plus Loop Engineering Pack installed in $TARGET_DIR"
+fi
 echo "Verify with:"
 echo "  bash scripts/verify-loop-docs.sh"
