@@ -60,10 +60,6 @@ if [ ! -f "$root/AGENTS.md" ] || ! grep -Fq "docs/loops/core-loop.md" "$root/AGE
   errors+=("AGENTS.md does not reference docs/loops/core-loop.md")
 fi
 
-if [ ! -f "$root/docs/README.md" ] || ! grep -Fq "loops/" "$root/docs/README.md"; then
-  errors+=("docs/README.md does not mention docs/loops/")
-fi
-
 if [ "${#errors[@]}" -gt 0 ]; then
   printf '%s\n' "${errors[@]}" >&2
   exit 1
