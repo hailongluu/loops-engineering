@@ -57,17 +57,17 @@ For implementation, documentation, automation, or research work, read:
 - `docs/loops/core-loop.md`
 - the relevant domain loop under `docs/loops/`
 
-Every task follows the Core Loop:
+Every task follows this loop:
 
 ```text
-Intake -> Context -> Lane -> Plan -> Verify strategy -> Act -> Verify -> Repair -> Stop -> Trace
+Goal -> Context -> Plan -> Act -> Verify -> Repair -> Trace
 ```
 
 Use one primary domain loop for the main work type. Add
 `docs/loops/security-risk-loop.md` when the task touches auth, authorization,
-data loss, audit/security, external providers, payments, privacy, or validation
-weakening. Do not finish implementation work without running the configured
-verifier or documenting the blocker in the trace.
+data loss, security, external providers, payments, privacy, or validation
+weakening. Do not finish implementation work without running the chosen
+verifier or documenting the blocker.
 '@
 
 function Invoke-WriteStep {
@@ -123,30 +123,11 @@ function Set-MarkedBlock {
   Set-Content -Encoding UTF8 -LiteralPath $path -Value $text
 }
 
-function Update-DocsReadme {
-  $path = Join-Path $target "docs/README.md"
-  Write-Host "Updating docs/README.md"
-  if ($DryRun) {
-    Write-Host "[dry-run] mention docs/loops in docs/README.md"
-    return
-  }
-  New-Item -ItemType Directory -Force -Path (Join-Path $target "docs") | Out-Null
-  if (-not (Test-Path -LiteralPath $path)) {
-    Set-Content -Encoding UTF8 -LiteralPath $path -Value "# Documentation Map`n`n- ``loops/``: reusable Core Loop plus domain loops for agent work.`n"
-    return
-  }
-  $text = Get-Content -Raw -Encoding UTF8 -LiteralPath $path
-  if ($text -notmatch [regex]::Escape("loops/")) {
-    Add-Content -Encoding UTF8 -LiteralPath $path -Value "`n- ``loops/``: reusable Core Loop plus domain loops for agent work."
-  }
-}
-
 foreach ($file in $loopFiles) {
   Install-RemoteFile -RelativePath $file
 }
 
 Set-MarkedBlock -RelativePath "AGENTS.md" -Marker "LOOP-ENGINEERING" -Block $loopBlock
-Update-DocsReadme
 
 Write-Host "Loop Engineering Pack installed in $target"
 Write-Host "Verify with:"
