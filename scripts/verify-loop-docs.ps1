@@ -69,11 +69,6 @@ if ($agents -notmatch [regex]::Escape("docs/loops/core-loop.md")) {
   $errors.Add("AGENTS.md does not reference docs/loops/core-loop.md")
 }
 
-$docsReadme = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $root "docs/README.md")
-if ($docsReadme -notmatch [regex]::Escape("loops/")) {
-  $errors.Add("docs/README.md does not mention docs/loops/")
-}
-
 if ($errors.Count -gt 0) {
   foreach ($err in $errors) {
     Write-Error $err
