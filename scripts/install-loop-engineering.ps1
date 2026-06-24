@@ -4,6 +4,7 @@ param(
   [switch]$Override,
   [switch]$Yes,
   [switch]$DryRun,
+  [switch]$LoopsOnly,
   [string]$Repo = $(if ($env:LOOP_ENGINEERING_REPO) { $env:LOOP_ENGINEERING_REPO } else { "hailongluu/loops-engineering" }),
   [string]$Ref = $(if ($env:LOOP_ENGINEERING_REF) { $env:LOOP_ENGINEERING_REF } else { "main" }),
   [string]$BaseUrl = $env:LOOP_ENGINEERING_BASE_URL
@@ -92,6 +93,28 @@ function Install-RemoteFile {
   }
 }
 
+function Install-Harness {
+  if ($LoopsOnly) {
+    Write-Host "Skipping Harness install (-LoopsOnly)."
+    return
+  }
+
+  $args = @("-Directory", $target)
+  if ($mode -eq "merge") { $args += "-Merge" }
+  if ($mode -eq "override") { $args += "-Override" }
+  if ($Yes) { $args += "-Yes" }
+  if ($DryRun) { $args += "-DryRun" }
+
+  Write-Host "Installing base Harness"
+  if ($DryRun) {
+    Write-Host "[dry-run] irm repository-harness installer with args: $($args -join ' ')"
+    return
+  }
+
+  $installer = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/hoangnb24/repository-harness/main/scripts/install-harness.ps1"
+  & ([scriptblock]::Create($installer)) @args
+}
+
 function Set-MarkedBlock {
   param(
     [string]$RelativePath,
@@ -123,12 +146,18 @@ function Set-MarkedBlock {
   Set-Content -Encoding UTF8 -LiteralPath $path -Value $text
 }
 
+Install-Harness
+
 foreach ($file in $loopFiles) {
   Install-RemoteFile -RelativePath $file
 }
 
 Set-MarkedBlock -RelativePath "AGENTS.md" -Marker "LOOP-ENGINEERING" -Block $loopBlock
 
-Write-Host "Loop Engineering Pack installed in $target"
+if ($LoopsOnly) {
+  Write-Host "Loop Engineering Pack installed in $target"
+} else {
+  Write-Host "Harness plus Loop Engineering Pack installed in $target"
+}
 Write-Host "Verify with:"
 Write-Host "  powershell -NoProfile -ExecutionPolicy Bypass -File scripts\verify-loop-docs.ps1"
