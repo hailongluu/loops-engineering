@@ -1,20 +1,18 @@
 # Scripts
 
-Installer and verifier for the Loop Engineering Pack.
+Installer and verifier for Harness plus the Loop Engineering Pack.
 
 ## Install
-
-macOS/Linux:
 
 ```bash
 curl -fsSL "https://raw.githubusercontent.com/hailongluu/loops-engineering/main/scripts/install-loop-engineering.sh?$(date +%s)" | bash -s -- --merge --yes
 ```
 
-Windows PowerShell:
-
 ```powershell
 & ([scriptblock]::Create((irm "https://raw.githubusercontent.com/hailongluu/loops-engineering/main/scripts/install-loop-engineering.ps1"))) -Merge -Yes
 ```
+
+Use `--loops-only` / `-LoopsOnly` when the target repo already has Harness.
 
 ## Verify
 
