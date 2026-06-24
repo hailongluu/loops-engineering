@@ -12,7 +12,7 @@ DRY_RUN=0
 
 usage() {
   cat <<'EOF'
-Install Loop Engineering Pack into a Harness repo.
+Install Loop Engineering Pack into any repo.
 
 Usage:
   install-loop-engineering.sh [--directory PATH] [--merge|--override] [--yes] [--dry-run]
@@ -112,17 +112,17 @@ For implementation, documentation, automation, or research work, read:
 - `docs/loops/core-loop.md`
 - the relevant domain loop under `docs/loops/`
 
-Every task follows the Core Loop:
+Every task follows this loop:
 
 ```text
-Intake -> Context -> Lane -> Plan -> Verify strategy -> Act -> Verify -> Repair -> Stop -> Trace
+Goal -> Context -> Plan -> Act -> Verify -> Repair -> Trace
 ```
 
 Use one primary domain loop for the main work type. Add
 `docs/loops/security-risk-loop.md` when the task touches auth, authorization,
-data loss, audit/security, external providers, payments, privacy, or validation
-weakening. Do not finish implementation work without running the configured
-verifier or documenting the blocker in the trace.'
+data loss, security, external providers, payments, privacy, or validation
+weakening. Do not finish implementation work without running the chosen
+verifier or documenting the blocker.'
 
 run_or_print() {
   if [ "$DRY_RUN" -eq 1 ]; then
@@ -196,33 +196,11 @@ patch_marked_block() {
   mv "$tmp" "$path"
 }
 
-patch_docs_readme() {
-  local path="$TARGET_DIR/docs/README.md"
-  echo "Updating docs/README.md"
-  if [ "$DRY_RUN" -eq 1 ]; then
-    echo "[dry-run] mention docs/loops in docs/README.md"
-    return
-  fi
-  mkdir -p "$TARGET_DIR/docs"
-  if [ ! -f "$path" ]; then
-    cat > "$path" <<'EOF'
-# Documentation Map
-
-- `loops/`: reusable Core Loop plus domain loops for agent work.
-EOF
-    return
-  fi
-  if ! grep -q 'loops/' "$path"; then
-    printf '\n- `loops/`: reusable Core Loop plus domain loops for agent work.\n' >> "$path"
-  fi
-}
-
 for rel in "${loop_files[@]}"; do
   download_file "$rel"
 done
 
 patch_marked_block "AGENTS.md" "LOOP-ENGINEERING" "$loop_block"
-patch_docs_readme
 
 if [ "$DRY_RUN" -eq 0 ]; then
   chmod +x "$TARGET_DIR/scripts/verify-loop-docs.sh" || true
